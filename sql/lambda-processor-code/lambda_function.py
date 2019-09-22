@@ -59,13 +59,13 @@ def lambda_handler(event, context):
             'parameter' : 'Seconds',
             'metricname' : 'session_duration',
         }
-        save_logs_in_cloudwatch(cw_write)
+        # save_logs_in_cloudwatch(cw_write)
         cw_write = {
             'events' : msn['EVENTS'],
             'parameter' : 'None',
             'metricname' : 'session_events',
         }
-        save_logs_in_cloudwatch(cw_write)
+        # save_logs_in_cloudwatch(cw_write)
 
         count += 1
     return 'Processed ' + str(count) + ' items.'

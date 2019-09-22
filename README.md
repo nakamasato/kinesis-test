@@ -37,5 +37,8 @@ terraform plan
 terraform apply
 ```
 
+## Warning
 
+Cloudwatch costs a lot!!
 
+I ran the first version for a few days and it cost me nearly 70 USD! Please be careful. I decided not to write to cloudwatch in lambda-processor
