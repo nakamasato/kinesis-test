@@ -11,13 +11,12 @@ The link provides the CloudFormation stack, but it didn't work in Tokyo region. 
 ## Description
 
 1. [Lambda] `kinesis-data-generator` -> (input: None, output: [kinesis stream] `source-stream`)
-2. [Kinesis analytics] `analytics` (Source data: `source-stream`, Real-time analytics: SQL, destination: `kinesis-processor`)
-4. [Lambda] `kinesis-processor` (input: `DESTINATION_SQL_STREAM` from Real-time analytics, output: `firehose-to-s3`)
-5. [Kinesis firehose] `firehose-to-s3` (input: processed data from `kinesis-processor`, output: `s3://{bucket}/{processed}`)
-6. [Kinesis firehose] `raw-raw-data-to-s3` (input: `source-stream`, output: `s3://{bucket}/{raw-data}`)
-7. [Glue] (WIP)
-8. [Athena] (WIP)
-9. [Cloudwatch Dashboard] (WIP)
+2. [Kinesis analytics] `analytics` (Source data: `source-stream`, Real-time analytics: SQL, destination: `firehose-to-s3`)
+3. [Kinesis firehose] `firehose-to-s3` (input: DESTINATION_SQL_STREAM, output: `s3://{bucket}/{processed}`)
+4. [Kinesis firehose] `raw-raw-data-to-s3` (input: `source-stream`, output: `s3://{bucket}/{raw-data}`)
+5. [Glue] (WIP)
+6. [Athena] (WIP)
+7. [Cloudwatch Dashboard] (WIP)
 
 # install dependencies
 

@@ -14,7 +14,7 @@ resource "aws_glue_catalog_table" "processed-table" {
 
 resource "aws_glue_crawler" "crawler" {
   database_name = aws_glue_catalog_database.database.name
-  name          = "crawler"
+  name          = var.glue-crawler-name
   role          = aws_iam_role.glue-role.arn
 
   s3_target {
@@ -30,7 +30,7 @@ resource "aws_glue_crawler" "crawler" {
 }
 
 resource "aws_iam_role" "glue-role" {
-  name = "glue-role"
+  name = var.glue-crawler-name
 
   assume_role_policy = <<EOF
 {
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "glue-policy-document" {
 }
 
 resource "aws_iam_policy" "glue-policy" {
-  name = "glue-policy"
+  name = var.glue-crawler-name
   description = "glue"
   policy = data.aws_iam_policy_document.glue-policy-document.json
 }

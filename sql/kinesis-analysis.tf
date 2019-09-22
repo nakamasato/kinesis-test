@@ -73,8 +73,8 @@ resource "aws_kinesis_analytics_application" "kinesis-analytics" {
       record_format_type = "JSON"
     }
 
-    lambda {
-      resource_arn = aws_lambda_function.lambda-processor.arn
+    kinesis_firehose {
+      resource_arn = aws_kinesis_firehose_delivery_stream.firehose-to-s3.arn
       role_arn     = aws_iam_role.kinesis-analytics-role.arn
     }
   }
@@ -83,9 +83,9 @@ resource "aws_kinesis_analytics_application" "kinesis-analytics" {
 }
 
 resource "aws_iam_role" "kinesis-analytics-role" {
-  name = "kinesis-analytics-role"
+  name               = "kinesis-analytics-role"
   assume_role_policy = data.aws_iam_policy_document.kinesis-analytics-assume-role-policy-document.json
-  description = "Regulates the permissions for kinesis-analytics application stream"
+  description        = "Regulates the permissions for kinesis-analytics application stream"
   tags = {
     Environment = var.environment
   }
@@ -99,15 +99,15 @@ data "aws_iam_policy_document" "kinesis-analytics-assume-role-policy-document" {
 
     principals {
       identifiers = ["kinesisanalytics.amazonaws.com"]
-      type = "Service"
+      type        = "Service"
     }
   }
 }
 
 resource "aws_iam_policy" "kinesis-analysis-policy" {
-  name = "kinesis-analytics-policy"
+  name        = "kinesis-analytics-policy"
   description = "kinesis analytics policy"
-  policy = data.aws_iam_policy_document.kinesis-analytics-policy-document.json
+  policy      = data.aws_iam_policy_document.kinesis-analytics-policy-document.json
 }
 
 data "aws_iam_policy_document" "kinesis-analytics-policy-document" {
@@ -145,20 +145,6 @@ data "aws_iam_policy_document" "kinesis-analytics-policy-document" {
   }
 
   statement {
-    sid = "LambdaWrite"
-
-    effect = "Allow"
-
-    actions = [
-      "lambda:*"
-    ]
-
-    resources = [
-      aws_lambda_function.lambda-processor.arn
-    ]
-  }
-
-  statement {
     sid = "WriteOutputKinesis"
 
     effect = "Allow"
@@ -177,6 +163,6 @@ data "aws_iam_policy_document" "kinesis-analytics-policy-document" {
 }
 
 resource "aws_iam_role_policy_attachment" "analytics-policy-attach" {
-  role = aws_iam_role.kinesis-analytics-role.name
+  role       = aws_iam_role.kinesis-analytics-role.name
   policy_arn = aws_iam_policy.kinesis-analysis-policy.arn
 }
