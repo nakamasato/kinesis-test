@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  terraform:
+    working_directory: ~/repo/kinesis-test/
+    docker:
+      - image: hashicorp/terraform:0.12.1
+    steps:
+      - checkout
+      - run:
+          name: "terraform fmt"
+          command: |
+            terraform fmt -diff=true -check=true
+workflows:
+  version: 2
+  terraform:
+    jobs:
+      - terraform
