@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/nakamasato/kinesis-test.svg?style=svg)](https://circleci.com/gh/nakamasato/kinesis-test)
+
 # Kinesis Example
 
 ## URL
