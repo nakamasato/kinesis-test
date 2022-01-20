@@ -1,5 +1,5 @@
 resource "aws_kinesis_stream" "kinesis-source-stream" {
-  name             = var.source-stream-name
+  name             = "${var.pipeline-name}-${var.source-stream-name}"
   shard_count      = 2
   retention_period = 48
 
@@ -14,7 +14,7 @@ resource "aws_kinesis_stream" "kinesis-source-stream" {
 }
 
 resource "aws_kinesis_analytics_application" "kinesis-analytics" {
-  name = "kinesis-analytics"
+  name = "${var.pipeline-name}-kinesis-analytics"
 
   inputs {
     name_prefix = "SOURCE_SQL_STREAM"
@@ -73,22 +73,23 @@ resource "aws_kinesis_analytics_application" "kinesis-analytics" {
       record_format_type = "JSON"
     }
 
-    lambda {
-      resource_arn = aws_lambda_function.lambda-processor.arn
+    kinesis_firehose {
+      resource_arn = aws_kinesis_firehose_delivery_stream.firehose-to-s3.arn
       role_arn     = aws_iam_role.kinesis-analytics-role.arn
     }
   }
 
-  code = file("./kinesis-analysis/analytics.sql")
-}
+  code = file("./analytics.sql")
 
-resource "aws_iam_role" "kinesis-analytics-role" {
-  name = "kinesis-analytics-role"
-  assume_role_policy = data.aws_iam_policy_document.kinesis-analytics-assume-role-policy-document.json
-  description = "Regulates the permissions for kinesis-analytics application stream"
   tags = {
     Environment = var.environment
   }
+}
+
+resource "aws_iam_role" "kinesis-analytics-role" {
+  name = "${var.pipeline-name}-kinesis-analytics-role"
+  assume_role_policy = data.aws_iam_policy_document.kinesis-analytics-assume-role-policy-document.json
+  description = "Regulates the permissions for kinesis-analytics application stream"
 }
 
 data "aws_iam_policy_document" "kinesis-analytics-assume-role-policy-document" {
@@ -105,7 +106,7 @@ data "aws_iam_policy_document" "kinesis-analytics-assume-role-policy-document" {
 }
 
 resource "aws_iam_policy" "kinesis-analysis-policy" {
-  name = "kinesis-analytics-policy"
+  name = "${var.pipeline-name}-kinesis-analytics-policy"
   description = "kinesis analytics policy"
   policy = data.aws_iam_policy_document.kinesis-analytics-policy-document.json
 }
@@ -141,20 +142,6 @@ data "aws_iam_policy_document" "kinesis-analytics-policy-document" {
     resources = [
       aws_kinesis_firehose_delivery_stream.firehose-to-s3.arn,
       "arn:aws:kinesis:${var.region}::stream/kinesis-analytics-placeholder-stream-destination"
-    ]
-  }
-
-  statement {
-    sid = "LambdaWrite"
-
-    effect = "Allow"
-
-    actions = [
-      "lambda:*"
-    ]
-
-    resources = [
-      aws_lambda_function.lambda-processor.arn
     ]
   }
 

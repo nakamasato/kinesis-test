@@ -1,19 +1,23 @@
 resource "aws_kinesis_firehose_delivery_stream" "firehose-to-s3" {
-  name        = "firehose-to-s3"
+  name        = "${var.pipeline-name}-firehose-to-s3"
   destination = "s3"
 
   s3_configuration {
     role_arn           = aws_iam_role.firehose-to-s3-role.arn
-    bucket_arn         = aws_s3_bucket.bucket.arn
-    prefix             = "${var.s3-prefix-processed}/"
+    bucket_arn         = data.aws_s3_bucket.bucket.arn
+    prefix             = "${var.pipeline-name}/${var.s3-prefix-processed}/"
     compression_format = "GZIP"
     buffer_size        = 10
     buffer_interval    = 60
   }
+
+  tags = {
+    Environment = var.environment
+  }
 }
 
 resource "aws_iam_role" "firehose-to-s3-role" {
-  name = "firehose-to-s3-role"
+  name = "${var.pipeline-name}-firehose-to-s3-role"
 
   assume_role_policy = <<EOF
 {
@@ -46,8 +50,8 @@ data "aws_iam_policy_document" "firehose-to-s3-policy-document" {
     ]
 
     resources = [
-      aws_s3_bucket.bucket.arn,
-      "${aws_s3_bucket.bucket.arn}/*"
+      data.aws_s3_bucket.bucket.arn,
+      "${data.aws_s3_bucket.bucket.arn}/${var.pipeline-name}/${var.s3-prefix-processed}/*"
     ]
 
   }
@@ -63,7 +67,7 @@ data "aws_iam_policy_document" "firehose-to-s3-policy-document" {
 }
 
 resource "aws_iam_policy" "firehose-to-s3-policy" {
-  name = "firehose-to-s3-policy"
+  name = "${var.pipeline-name}-firehose-to-s3-policy"
   description = "firehose to s3 policy"
   policy = data.aws_iam_policy_document.firehose-to-s3-policy-document.json
 }

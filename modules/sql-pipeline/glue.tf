@@ -1,5 +1,5 @@
 resource "aws_glue_catalog_database" "database" {
-  name = var.database
+  name = "${var.pipeline-name}-${var.database}"
 }
 
 resource "aws_glue_catalog_table" "raw-table" {
@@ -14,11 +14,11 @@ resource "aws_glue_catalog_table" "processed-table" {
 
 resource "aws_glue_crawler" "crawler" {
   database_name = aws_glue_catalog_database.database.name
-  name          = "crawler"
+  name          = "${var.pipeline-name}-crawler"
   role          = aws_iam_role.glue-role.arn
 
   s3_target {
-    path = "s3://${aws_s3_bucket.bucket.bucket}"
+    path = "s3://${data.aws_s3_bucket.bucket.bucket}"
   }
 
   schema_change_policy {
@@ -30,7 +30,7 @@ resource "aws_glue_crawler" "crawler" {
 }
 
 resource "aws_iam_role" "glue-role" {
-  name = "glue-role"
+  name = "${var.pipeline-name}-glue-role"
 
   assume_role_policy = <<EOF
 {
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "glue-policy-document" {
 }
 
 resource "aws_iam_policy" "glue-policy" {
-  name = "glue-policy"
+  name = "${var.pipeline-name}-glue-policy"
   description = "glue"
   policy = data.aws_iam_policy_document.glue-policy-document.json
 }

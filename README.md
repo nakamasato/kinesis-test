@@ -11,13 +11,16 @@ The link provides the CloudFormation stack, but it didn't work in Tokyo region. 
 ## Description
 
 1. [Lambda] `kinesis-data-generator` -> (input: None, output: [kinesis stream] `source-stream`)
-2. [Kinesis analytics] `analytics` (Source data: `source-stream`, Real-time analytics: SQL, destination: `kinesis-processor`)
-4. [Lambda] `kinesis-processor` (input: `DESTINATION_SQL_STREAM` from Real-time analytics, output: `firehose-to-s3`)
-5. [Kinesis firehose] `firehose-to-s3` (input: processed data from `kinesis-processor`, output: `s3://{bucket}/{processed}`)
-6. [Kinesis firehose] `raw-raw-data-to-s3` (input: `source-stream`, output: `s3://{bucket}/{raw-data}`)
-7. [Glue] (WIP)
-8. [Athena] (WIP)
-9. [Cloudwatch Dashboard] (WIP)
+2. [Kinesis analytics] `analytics` (Source data: `source-stream`, Real-time analytics: SQL, destination: `firehose-to-s3`)
+3. [Kinesis firehose] `firehose-to-s3` (input: DESTINATION_SQL_STREAM, output: `s3://{bucket}/{processed}`)
+4. [Kinesis firehose] `raw-data-to-s3` (input: `source-stream`, output: `s3://{bucket}/{raw-data}`)
+5. [Glue] Database + 2 tables (rawdata, processed)
+
+## Warning
+
+Cloudwatch costs a lot!!
+
+I ran the first version for a few days and it cost me nearly 70 USD! Please be careful. I decided not to write to cloudwatch in lambda-processor
 
 # install dependencies
 
